@@ -1,0 +1,1264 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Convertidor de Bases Numéricas</title>
+    <style>
+        :root {
+            --primary: #3050cc;
+            --primary-dark: #203080;
+            --primary-light: #e0e8ff;
+            --secondary: #ff7700;
+            --dark: #333;
+            --light: #f8f9fa;
+            --error: #e74c3c;
+            --success: #2ecc71;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--light);
+            color: var(--dark);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            color: var(--primary);
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--primary-light);
+        }
+        
+        .description {
+            margin-bottom: 25px;
+            text-align: center;
+            line-height: 1.6;
+            color: #666;
+        }
+        
+        .converter-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .input-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .form-group {
+            flex: 1;
+            min-width: 250px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--primary-dark);
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(48, 80, 204, 0.2);
+        }
+        
+        select {
+            cursor: pointer;
+            background-color: white;
+        }
+        
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .result-container {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: var(--primary-light);
+            border-radius: 5px;
+            border-left: 4px solid var(--primary);
+            display: none;
+        }
+        
+        .result-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--primary-dark);
+        }
+        
+        .result-text {
+            font-family: monospace;
+            white-space: pre-wrap;
+            padding: 10px;
+            background-color: white;
+            border-radius: 5px;
+            line-height: 1.5;
+            min-height: 60px;
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            color: white;
+            display: none;
+        }
+        
+        .alert-error {
+            background-color: var(--error);
+        }
+        
+        .alert-success {
+            background-color: var(--success);
+        }
+        
+        .help-section {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid var(--primary-light);
+        }
+        
+        .help-title {
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+        
+        .help-content {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 4px solid var(--secondary);
+        }
+        
+        .collapsible {
+            cursor: pointer;
+            padding: 15px;
+            width: 100%;
+            text-align: left;
+            background-color: #f1f1f1;
+            border: none;
+            border-radius: 5px;
+            outline: none;
+            font-weight: 600;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .active, .collapsible:hover {
+            background-color: #ddd;
+        }
+        
+        .collapsible:after {
+            content: '\002B';
+            font-weight: bold;
+            float: right;
+            margin-left: 5px;
+        }
+        
+        .active:after {
+            content: "\2212";
+        }
+        
+        .content {
+            padding: 0 15px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.2s ease-out;
+            margin-bottom: 15px;
+            background-color: white;
+            border-radius: 0 0 5px 5px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background-color: var(--primary-light);
+            color: var(--primary-dark);
+        }
+        
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .conversion-steps {
+            margin-top: 20px;
+            border-top: 1px solid #ddd;
+            padding-top: 15px;
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            .input-group {
+                flex-direction: column;
+            }
+        }
+        
+        footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 14px;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Calculadora Avanzada de Bases Numéricas</h1>
+        <p class="description">Esta herramienta permite convertir texto alfanumérico entre diferentes bases numéricas y realizar operaciones aritméticas.<br>Especialmente útil para trabajar con base 2 (binario), 8 (octal), 10 (decimal), 16 (hexadecimal) y 37 (extendida).</p>
+        
+        <div id="alert" class="alert"></div>
+        
+        <div class="converter-container">
+            <div class="input-group">
+                <div class="form-group">
+                    <label for="inputText">Texto a convertir:</label>
+                    <textarea id="inputText" placeholder="Ingresa el texto que deseas convertir"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="fromBase">Desde base:</label>
+                    <select id="fromBase">
+                        <option value="2">Base 2 (Binario)</option>
+                        <option value="8">Base 8 (Octal)</option>
+                        <option value="10" selected>Base 10 (Decimal)</option>
+                        <option value="16">Base 16 (Hexadecimal)</option>
+                        <option value="37">Base 37 (Extendida)</option>
+                        <option value="custom">Personalizada</option>
+                    </select>
+                    <div id="customFromBase" style="display: none; margin-top: 10px;">
+                        <label for="customFromBaseValue">Valor de base personalizada (2-62):</label>
+                        <input type="number" id="customFromBaseValue" min="2" max="62" value="37">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="toBase">A base:</label>
+                    <select id="toBase">
+                        <option value="2">Base 2 (Binario)</option>
+                        <option value="8">Base 8 (Octal)</option>
+                        <option value="10">Base 10 (Decimal)</option>
+                        <option value="16">Base 16 (Hexadecimal)</option>
+                        <option value="37" selected>Base 37 (Extendida)</option>
+                        <option value="custom">Personalizada</option>
+                    </select>
+                    <div id="customToBase" style="display: none; margin-top: 10px;">
+                        <label for="customToBaseValue">Valor de base personalizada (2-62):</label>
+                        <input type="number" id="customToBaseValue" min="2" max="62" value="37">
+                    </div>
+                </div>
+            </div>
+            
+            <button id="convertBtn" class="btn">Convertir</button>
+            
+            <div id="showSteps" style="margin-top: 10px; display: none;">
+                <input type="checkbox" id="stepByStep" checked> 
+                <label for="stepByStep" style="display: inline;">Mostrar proceso paso a paso</label>
+            </div>
+            
+            <div id="resultContainer" class="result-container">
+                <div class="result-title">Resultado de la conversión:</div>
+                <div id="resultText" class="result-text"></div>
+            </div>
+            
+            <div id="conversionSteps" class="conversion-steps">
+                <h3>Proceso de conversión paso a paso:</h3>
+                <div id="stepsContent"></div>
+            </div>
+        </div>
+        
+        <!-- Sección de operaciones aritméticas -->
+        <div class="arithmetic-section" style="margin-top: 40px;">
+            <h2 style="color: var(--primary); margin-bottom: 20px;">Operaciones Aritméticas</h2>
+            
+            <div class="alert alert-info" style="background-color: #d1ecf1; color: #0c5460; display: block; margin-bottom: 20px;">
+                Realiza operaciones aritméticas (suma, resta, multiplicación, división) entre números expresados en cualquier base.
+            </div>
+            
+            <div class="input-group">
+                <div class="form-group">
+                    <label for="number1">Primer número:</label>
+                    <input type="text" id="number1" placeholder="Ej: 1A (en hexadecimal)">
+                </div>
+                
+                <div class="form-group">
+                    <label for="base1">Base del primer número:</label>
+                    <select id="base1">
+                        <option value="2">Base 2 (Binario)</option>
+                        <option value="8">Base 8 (Octal)</option>
+                        <option value="10" selected>Base 10 (Decimal)</option>
+                        <option value="16">Base 16 (Hexadecimal)</option>
+                        <option value="37">Base 37 (Extendida)</option>
+                        <option value="custom">Personalizada</option>
+                    </select>
+                    <div id="customBase1" style="display: none; margin-top: 10px;">
+                        <label for="customBase1Value">Valor de base personalizada (2-62):</label>
+                        <input type="number" id="customBase1Value" min="2" max="62" value="37">
+                    </div>
+                </div>
+                
+                <div class="form-group" style="max-width: 100px;">
+                    <label for="operation">Operación:</label>
+                    <select id="operation">
+                        <option value="+">+</option>
+                        <option value="-">-</option>
+                        <option value="*">×</option>
+                        <option value="/">÷</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="number2">Segundo número:</label>
+                    <input type="text" id="number2" placeholder="Ej: 15 (en decimal)">
+                </div>
+                
+                <div class="form-group">
+                    <label for="base2">Base del segundo número:</label>
+                    <select id="base2">
+                        <option value="2">Base 2 (Binario)</option>
+                        <option value="8">Base 8 (Octal)</option>
+                        <option value="10" selected>Base 10 (Decimal)</option>
+                        <option value="16">Base 16 (Hexadecimal)</option>
+                        <option value="37">Base 37 (Extendida)</option>
+                        <option value="custom">Personalizada</option>
+                    </select>
+                    <div id="customBase2" style="display: none; margin-top: 10px;">
+                        <label for="customBase2Value">Valor de base personalizada (2-62):</label>
+                        <input type="number" id="customBase2Value" min="2" max="62" value="37">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="input-group" style="margin-top: 20px;">
+                <div class="form-group">
+                    <label for="resultBase">Base del resultado:</label>
+                    <select id="resultBase">
+                        <option value="2">Base 2 (Binario)</option>
+                        <option value="8">Base 8 (Octal)</option>
+                        <option value="10" selected>Base 10 (Decimal)</option>
+                        <option value="16">Base 16 (Hexadecimal)</option>
+                        <option value="37">Base 37 (Extendida)</option>
+                        <option value="custom">Personalizada</option>
+                    </select>
+                    <div id="customResultBase" style="display: none; margin-top: 10px;">
+                        <label for="customResultBaseValue">Valor de base personalizada (2-62):</label>
+                        <input type="number" id="customResultBaseValue" min="2" max="62" value="37">
+                    </div>
+                </div>
+                
+                <div class="form-group" style="align-self: flex-end;">
+                    <button id="calculateBtn" class="btn">Calcular</button>
+                </div>
+            </div>
+            
+            <div id="arithmeticResultContainer" class="result-container" style="display: none;">
+                <div class="result-title">Resultado de la operación:</div>
+                <div id="arithmeticResultText" class="result-text"></div>
+            </div>
+            
+            <div id="arithmeticSteps" class="conversion-steps" style="display: none;">
+                <h3>Proceso de cálculo paso a paso:</h3>
+                <div id="arithmeticStepsContent"></div>
+            </div>
+        </div>
+
+        <div class="help-section">
+            <button class="collapsible">Tabla de Valores en Base 37</button>
+            <div class="content">
+                <p>En base 37 se utilizan los siguientes símbolos:</p>
+                <table>
+                    <tr>
+                        <th>Símbolo</th>
+                        <th>Valor</th>
+                        <th>Símbolo</th>
+                        <th>Valor</th>
+                        <th>Símbolo</th>
+                        <th>Valor</th>
+                    </tr>
+                    <tr>
+                        <td>0-9</td>
+                        <td>0-9</td>
+                        <td>A</td>
+                        <td>10</td>
+                        <td>N</td>
+                        <td>23</td>
+                    </tr>
+                    <tr>
+                        <td>B</td>
+                        <td>11</td>
+                        <td>Ñ</td>
+                        <td>24</td>
+                        <td>V</td>
+                        <td>32</td>
+                    </tr>
+                    <tr>
+                        <td>C</td>
+                        <td>12</td>
+                        <td>O</td>
+                        <td>25</td>
+                        <td>W</td>
+                        <td>33</td>
+                    </tr>
+                    <tr>
+                        <td>D</td>
+                        <td>13</td>
+                        <td>P</td>
+                        <td>26</td>
+                        <td>X</td>
+                        <td>34</td>
+                    </tr>
+                    <tr>
+                        <td>E</td>
+                        <td>14</td>
+                        <td>Q</td>
+                        <td>27</td>
+                        <td>Y</td>
+                        <td>35</td>
+                    </tr>
+                    <tr>
+                        <td>F</td>
+                        <td>15</td>
+                        <td>R</td>
+                        <td>28</td>
+                        <td>Z</td>
+                        <td>36</td>
+                    </tr>
+                    <tr>
+                        <td>G</td>
+                        <td>16</td>
+                        <td>S</td>
+                        <td>29</td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>H</td>
+                        <td>17</td>
+                        <td>T</td>
+                        <td>30</td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>I</td>
+                        <td>18</td>
+                        <td>U</td>
+                        <td>31</td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>J</td>
+                        <td>19</td>
+                        <td>V</td>
+                        <td>32</td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>K</td>
+                        <td>20</td>
+                        <td>W</td>
+                        <td>33</td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>L</td>
+                        <td>21</td>
+                        <td>X</td>
+                        <td>34</td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>M</td>
+                        <td>22</td>
+                        <td>Y</td>
+                        <td>35</td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td>Z</td>
+                        <td>36</td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                </table>
+                <p>Una forma fácil de recordar el valor de cada letra es sumar 9 a su posición en el alfabeto. Por ejemplo: C es la tercera letra, entonces C = 3 + 9 = 12.</p>
+            </div>
+            
+            <button class="collapsible">¿Cómo funciona la conversión entre bases?</button>
+            <div class="content">
+                <p>La conversión entre bases numéricas sigue estos pasos:</p>
+                <ol>
+                    <li><strong>De cualquier base a decimal (base 10):</strong>
+                        <ul>
+                            <li>Cada dígito se multiplica por la base elevada a la potencia correspondiente a su posición (de derecha a izquierda, empezando por 0).</li>
+                            <li>Se suman todos estos productos.</li>
+                            <li>Ejemplo: En base 16, "1A3" representa 1×16² + 10×16¹ + 3×16⁰ = 256 + 160 + 3 = 419 en decimal.</li>
+                        </ul>
+                    </li>
+                    <li><strong>De decimal a cualquier otra base:</strong>
+                        <ul>
+                            <li>Se divide el número decimal por la base de destino repetidamente.</li>
+                            <li>Se registran los residuos de cada división.</li>
+                            <li>Se leen los residuos en orden inverso (de abajo hacia arriba).</li>
+                            <li>Ejemplo: Para convertir 419 a base 16, dividimos sucesivamente por 16:
+                                <br>419 ÷ 16 = 26 con residuo 3
+                                <br>26 ÷ 16 = 1 con residuo 10 (A en hexadecimal)
+                                <br>1 ÷ 16 = 0 con residuo 1
+                                <br>Leyendo los residuos de abajo hacia arriba: 1A3</li>
+                        </ul>
+                    </li>
+                </ol>
+            </div>
+            
+            <button class="collapsible">Operaciones Aritméticas en Diferentes Bases</button>
+            <div class="content">
+                <p>Para realizar operaciones aritméticas en diferentes bases numéricas:</p>
+                <ol>
+                    <li><strong>Suma y Resta:</strong>
+                        <ul>
+                            <li>Se realizan columna por columna, de derecha a izquierda.</li>
+                            <li>Se generan "acarreos" cuando el resultado en una columna es igual o mayor que la base.</li>
+                            <li>Ejemplo en base 16: 9 + 8 = 17 decimal = 11 en hexadecimal (escribimos 1 y llevamos 1).</li>
+                        </ul>
+                    </li>
+                    <li><strong>Multiplicación:</strong>
+                        <ul>
+                            <li>Similar a la decimal pero considerando que los productos parciales pueden exceder la base.</li>
+                            <li>Ejemplo en base 16: 9 × C (12 decimal) = 108 decimal = 6C en hexadecimal.</li>
+                        </ul>
+                    </li>
+                    <li><strong>División:</strong>
+                        <ul>
+                            <li>Sigue el mismo principio que la división en decimal.</li>
+                            <li>En cada paso, se determina cuántas veces cabe el divisor en el dividendo parcial.</li>
+                            <li>Para la parte decimal, nuestra calculadora proporciona hasta tres dígitos después del punto decimal para mayor precisión.</li>
+                        </ul>
+                    </li>
+                </ol>
+                <p>La ventaja de nuestra calculadora es que convierte automáticamente a decimal, realiza la operación, y luego convierte el resultado de vuelta a la base deseada.</p>
+            </div>
+
+            <button class="collapsible">Aplicaciones de diferentes bases numéricas</button>
+            <div class="content">
+                <p>Los sistemas de numeración en diferentes bases tienen varias aplicaciones:</p>
+                <ul>
+                    <li><strong>Base 2 (Binario):</strong> Fundamental en computación ya que los ordenadores trabajan con estados binarios (0/1).</li>
+                    <li><strong>Base 8 (Octal):</strong> Utilizada históricamente en computación como forma compacta de representar datos binarios.</li>
+                    <li><strong>Base 10 (Decimal):</strong> El sistema que usamos cotidianamente, probablemente porque tenemos diez dedos.</li>
+                    <li><strong>Base 16 (Hexadecimal):</strong> Ampliamente utilizada en programación para representar valores binarios de forma más compacta (colores, direcciones de memoria, etc.).</li>
+                    <li><strong>Base 37 y otras bases extendidas:</strong> Útiles en:
+                        <ul>
+                            <li>Criptografía y seguridad informática</li>
+                            <li>Compresión de datos</li>
+                            <li>Representación eficiente de información</li>
+                            <li>Desarrollo de algoritmos avanzados</li>
+                            <li>Formación matemática y desarrollo del pensamiento abstracto</li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+        <footer>
+            &copy; 2025 Convertidor de Bases Numéricas | Basado en División Criptográfica en Base 37
+        </footer>
+    </div>
+
+    <script>
+        // Manejar los collapsibles
+        const coll = document.getElementsByClassName("collapsible");
+        for (let i = 0; i < coll.length; i++) {
+            coll[i].addEventListener("click", function() {
+                this.classList.toggle("active");
+                const content = this.nextElementSibling;
+                if (content.style.maxHeight) {
+                    content.style.maxHeight = null;
+                } else {
+                    content.style.maxHeight = content.scrollHeight + "px";
+                }
+            });
+        }
+        
+        // Manejar las bases personalizadas para conversión
+        document.getElementById('fromBase').addEventListener('change', function() {
+            document.getElementById('customFromBase').style.display = 
+                this.value === 'custom' ? 'block' : 'none';
+        });
+        
+        document.getElementById('toBase').addEventListener('change', function() {
+            document.getElementById('customToBase').style.display = 
+                this.value === 'custom' ? 'block' : 'none';
+        });
+        
+        // Manejar las bases personalizadas para operaciones aritméticas
+        document.getElementById('base1').addEventListener('change', function() {
+            document.getElementById('customBase1').style.display = 
+                this.value === 'custom' ? 'block' : 'none';
+        });
+        
+        document.getElementById('base2').addEventListener('change', function() {
+            document.getElementById('customBase2').style.display = 
+                this.value === 'custom' ? 'block' : 'none';
+        });
+        
+        document.getElementById('resultBase').addEventListener('change', function() {
+            document.getElementById('customResultBase').style.display = 
+                this.value === 'custom' ? 'block' : 'none';
+        });
+        
+        // Caracteres para diferentes bases
+        const DIGITS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+        
+        // Mapeo especial para Base 37 según la imagen proporcionada
+        const BASE37_MAP = {
+            "0": 0, "1": 1, "2": 2, "3": 3, "4": 4, "5": 5, "6": 6, "7": 7, "8": 8, "9": 9,
+            "A": 10, "B": 11, "C": 12, "D": 13, "E": 14, "F": 15, "G": 16, "H": 17, "I": 18,
+            "J": 19, "K": 20, "L": 21, "M": 22, "N": 23, "Ñ": 24, "O": 25, "P": 26, "Q": 27,
+            "R": 28, "S": 29, "T": 30, "U": 31, "V": 32, "W": 33, "X": 34, "Y": 35, "Z": 36,
+            "a": 10, "b": 11, "c": 12, "d": 13, "e": 14, "f": 15, "g": 16, "h": 17, "i": 18,
+            "j": 19, "k": 20, "l": 21, "m": 22, "n": 23, "ñ": 24, "o": 25, "p": 26, "q": 27,
+            "r": 28, "s": 29, "t": 30, "u": 31, "v": 32, "w": 33, "x": 34, "y": 35, "z": 36
+        };
+        
+        const BASE37_REVERSE = [
+            "0", "1", "2", "3", "4", "5", "6", "7", "8", "9",
+            "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M",
+            "N", "Ñ", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"
+        ];
+
+        // Función para mostrar un mensaje de alerta
+        function showAlert(message, type) {
+            const alert = document.getElementById('alert');
+            alert.textContent = message;
+            alert.className = 'alert alert-' + type;
+            alert.style.display = 'block';
+            
+            setTimeout(() => {
+                alert.style.display = 'none';
+            }, 5000);
+        }
+        
+        // Convertir de cualquier base a decimal
+        function toDecimal(text, fromBase) {
+            let result = 0;
+            let steps = [];
+            
+            if (fromBase === 37) {
+                // Usar mapeo especial para base 37
+                for (let i = 0; i < text.length; i++) {
+                    const char = text[i];
+                    if (BASE37_MAP[char] === undefined) {
+                        throw new Error(`Carácter no válido '${char}' para base 37`);
+                    }
+                    
+                    const digit = BASE37_MAP[char];
+                    const position = text.length - 1 - i;
+                    const power = Math.pow(fromBase, position);
+                    const value = digit * power;
+                    
+                    result += value;
+                    
+                    steps.push(`Posición ${position}: ${char} (valor ${digit}) × ${fromBase}^${position} = ${value}`);
+                }
+            } else {
+                for (let i = 0; i < text.length; i++) {
+                    const char = text[i];
+                    const digit = DIGITS.indexOf(char);
+                    
+                    if (digit === -1 || digit >= fromBase) {
+                        throw new Error(`Carácter no válido '${char}' para base ${fromBase}`);
+                    }
+                    
+                    const position = text.length - 1 - i;
+                    const power = Math.pow(fromBase, position);
+                    const value = digit * power;
+                    
+                    result += value;
+                    
+                    steps.push(`Posición ${position}: ${char} (valor ${digit}) × ${fromBase}^${position} = ${value}`);
+                }
+            }
+            
+            steps.push(`Suma total = ${result}`);
+            
+            return {
+                result,
+                steps
+            };
+        }
+        
+        // Convertir de decimal a cualquier base
+        function fromDecimal(decimal, toBase) {
+            if (decimal === 0) return { result: "0", steps: ["0 en base 10 = 0 en base " + toBase] };
+            
+            // Manejar números negativos
+            let isNegative = false;
+            if (decimal < 0) {
+                isNegative = true;
+                decimal = Math.abs(decimal);
+                
+                // Añadimos esta información a los pasos
+                steps.push(`El número es negativo. Convertiremos su valor absoluto ${decimal} y añadiremos el signo después.`);
+            }
+            
+            let result = "";
+            let steps = [];
+            let num = decimal;
+            let step = 1;
+            
+            // Si el número tiene parte decimal
+            let integerPart = Math.floor(decimal);
+            let decimalPart = decimal - integerPart;
+            let hasDecimal = decimalPart > 0;
+            
+            steps.push(`Convertir ${decimal} a base ${toBase}:`);
+            
+            // Convertir la parte entera
+            if (integerPart === 0) {
+                result = "0";
+                steps.push(`La parte entera es 0`);
+            } else {
+                let intResult = "";
+                num = integerPart;
+                
+                while (num > 0) {
+                    const remainder = num % toBase;
+                    let char;
+                    
+                    if (toBase === 37) {
+                        // Usar mapeo especial para base 37
+                        char = BASE37_REVERSE[remainder];
+                    } else {
+                        char = DIGITS[remainder];
+                    }
+                    
+                    steps.push(`Paso ${step}: ${num} ÷ ${toBase} = ${Math.floor(num / toBase)} con residuo ${remainder} (${char})`);
+                    
+                    intResult = char + intResult;
+                    num = Math.floor(num / toBase);
+                    step++;
+                }
+                
+                result = intResult;
+                steps.push(`Parte entera en base ${toBase}: ${intResult}`);
+            }
+            
+            // Convertir la parte decimal (si existe)
+            if (hasDecimal) {
+                let decResult = "";
+                num = decimalPart;
+                step = 1;
+                
+                steps.push(`\nConvertir la parte decimal ${decimalPart}:`);
+                
+                // Calculamos hasta 3 dígitos después del punto decimal o hasta que no quede parte decimal
+                for (let i = 0; i < 3 && num > 0; i++) {
+                    num *= toBase;
+                    const digit = Math.floor(num);
+                    
+                    let char;
+                    if (toBase === 37) {
+                        char = BASE37_REVERSE[digit];
+                    } else {
+                        char = DIGITS[digit];
+                    }
+                    
+                    steps.push(`Paso ${step}: ${decimalPart} × ${toBase} = ${num.toFixed(6)}, parte entera = ${digit} (${char})`);
+                    
+                    decResult += char;
+                    num -= digit;
+                    decimalPart = num;
+                    step++;
+                }
+                
+                if (decResult) {
+                    result += "." + decResult;
+                    steps.push(`Parte decimal en base ${toBase}: .${decResult}`);
+                }
+            }
+            
+            // Añadir el signo negativo si corresponde
+            if (isNegative) {
+                result = "-" + result;
+            }
+            
+            steps.push(`Resultado final en base ${toBase}: ${result}`);
+            
+            return {
+                result,
+                steps
+            };
+        }
+        
+        // Función principal de conversión
+        function convertBase() {
+            const inputText = document.getElementById('inputText').value.trim();
+            
+            if (!inputText) {
+                showAlert("Por favor ingresa un texto para convertir", "error");
+                return;
+            }
+            
+            // Determinar las bases
+            let fromBase = document.getElementById('fromBase').value;
+            let toBase = document.getElementById('toBase').value;
+            
+            if (fromBase === 'custom') {
+                fromBase = parseInt(document.getElementById('customFromBaseValue').value);
+            } else {
+                fromBase = parseInt(fromBase);
+            }
+            
+            if (toBase === 'custom') {
+                toBase = parseInt(document.getElementById('customToBaseValue').value);
+            } else {
+                toBase = parseInt(toBase);
+            }
+            
+            // Validar las bases
+            if (fromBase < 2 || fromBase > 62) {
+                showAlert("La base de origen debe estar entre 2 y 62", "error");
+                return;
+            }
+            
+            if (toBase < 2 || toBase > 62) {
+                showAlert("La base de destino debe estar entre 2 y 62", "error");
+                return;
+            }
+            
+            // Realizar la conversión
+            try {
+                const showSteps = document.getElementById('stepByStep').checked;
+                let steps = [];
+                
+                // Paso 1: Convertir a decimal (si es necesario)
+                let decimal;
+                let decimalSteps = [];
+                
+                if (fromBase === 10) {
+                    decimal = parseFloat(inputText);
+                    decimalSteps = [`${inputText} ya está en base 10 (decimal)`];
+                } else {
+                    const result = toDecimal(inputText, fromBase);
+                    decimal = result.result;
+                    decimalSteps = result.steps;
+                }
+                
+                steps.push("PASO 1: Convertir a decimal (base 10)");
+                steps = steps.concat(decimalSteps);
+                
+                // Paso 2: Convertir de decimal a la base de destino (si es necesario)
+                let finalResult;
+                let toBaseSteps = [];
+                
+                if (toBase === 10) {
+                    finalResult = decimal.toString();
+                    toBaseSteps = ["Ya está en base 10, no se requiere conversión adicional"];
+                } else {
+                    const result = fromDecimal(decimal, toBase);
+                    finalResult = result.result;
+                    toBaseSteps = result.steps;
+                }
+                
+                steps.push("\nPASO 2: Convertir de decimal a base " + toBase);
+                steps = steps.concat(toBaseSteps);
+                
+                // Mostrar el resultado
+                document.getElementById('resultText').textContent = finalResult;
+                document.getElementById('resultContainer').style.display = 'block';
+                
+                // Mostrar los pasos si se solicitó
+                const stepsContainer = document.getElementById('conversionSteps');
+                const stepsContent = document.getElementById('stepsContent');
+                
+                if (showSteps) {
+                    stepsContent.innerHTML = steps.map(step => {
+                        return `<p>${step}</p>`;
+                    }).join('');
+                    stepsContainer.style.display = 'block';
+                } else {
+                    stepsContainer.style.display = 'none';
+                }
+                
+                showAlert("Conversión completada con éxito", "success");
+                
+            } catch (error) {
+                showAlert("Error: " + error.message, "error");
+            }
+        }
+        
+        // Funciones para operaciones aritméticas
+        function performArithmeticOperation() {
+            // Obtener los valores de entrada
+            const num1 = document.getElementById('number1').value.trim();
+            const num2 = document.getElementById('number2').value.trim();
+            const operation = document.getElementById('operation').value;
+            
+            if (!num1 || !num2) {
+                showAlert("Por favor ingresa ambos números para realizar la operación", "error");
+                return;
+            }
+            
+            // Determinar las bases
+            let base1 = document.getElementById('base1').value;
+            let base2 = document.getElementById('base2').value;
+            let resultBase = document.getElementById('resultBase').value;
+            
+            if (base1 === 'custom') {
+                base1 = parseInt(document.getElementById('customBase1Value').value);
+            } else {
+                base1 = parseInt(base1);
+            }
+            
+            if (base2 === 'custom') {
+                base2 = parseInt(document.getElementById('customBase2Value').value);
+            } else {
+                base2 = parseInt(base2);
+            }
+            
+            if (resultBase === 'custom') {
+                resultBase = parseInt(document.getElementById('customResultBaseValue').value);
+            } else {
+                resultBase = parseInt(resultBase);
+            }
+            
+            // Validar bases
+            if (base1 < 2 || base1 > 62 || base2 < 2 || base2 > 62 || resultBase < 2 || resultBase > 62) {
+                showAlert("Todas las bases deben estar entre 2 y 62", "error");
+                return;
+            }
+            
+            try {
+                // Siempre mostramos los pasos, independientemente de la casilla de verificación
+                const showSteps = true; // Antes se usaba el checkbox, ahora siempre es true
+                let steps = [];
+                
+                // Paso 1: Convertir ambos números a decimal
+                let decimal1, decimal2;
+                
+                steps.push("<strong>PASO 1: Convertir ambos números a decimal (base 10)</strong>");
+                
+                try {
+                    const result1 = toDecimal(num1, base1);
+                    decimal1 = result1.result;
+                    steps.push(`<div style="margin-left: 20px; margin-bottom: 10px;">
+                        <strong>Convertir ${num1}<sub>${base1}</sub> a decimal:</strong>
+                        <div style="margin-left: 20px;">${result1.steps.join('<br>')}</div>
+                    </div>`);
+                } catch (error) {
+                    showAlert(`Error en el primer número: ${error.message}`, "error");
+                    return;
+                }
+                
+                try {
+                    const result2 = toDecimal(num2, base2);
+                    decimal2 = result2.result;
+                    steps.push(`<div style="margin-left: 20px; margin-bottom: 10px;">
+                        <strong>Convertir ${num2}<sub>${base2}</sub> a decimal:</strong>
+                        <div style="margin-left: 20px;">${result2.steps.join('<br>')}</div>
+                    </div>`);
+                } catch (error) {
+                    showAlert(`Error en el segundo número: ${error.message}`, "error");
+                    return;
+                }
+                
+                // Paso 2: Realizar la operación
+                steps.push(`<strong>PASO 2: Realizar la operación en decimal</strong>`);
+                
+                let resultDecimal;
+                let operationSymbol;
+                let detailedOperation = "";
+                
+                switch (operation) {
+                    case '+':
+                        resultDecimal = decimal1 + decimal2;
+                        operationSymbol = '+';
+                        detailedOperation = `<div style="margin-left: 20px;">
+                            <strong>Suma en decimal:</strong>
+                            <div style="margin-left: 20px;">
+                                ${decimal1} + ${decimal2} = ${resultDecimal}
+                            </div>
+                        </div>`;
+                        break;
+                    case '-':
+                        resultDecimal = decimal1 - decimal2;
+                        operationSymbol = '-';
+                        detailedOperation = `<div style="margin-left: 20px;">
+                            <strong>Resta en decimal:</strong>
+                            <div style="margin-left: 20px;">
+                                ${decimal1} - ${decimal2} = ${resultDecimal}
+                            </div>
+                        </div>`;
+                        break;
+                    case '*':
+                        resultDecimal = decimal1 * decimal2;
+                        operationSymbol = '×';
+                        
+                        // Mostrar proceso detallado de multiplicación
+                        let multProcess = [
+                            `${decimal1} × ${decimal2} = ${resultDecimal}`
+                        ];
+                        
+                        // Si ambos números son suficientemente grandes, mostrar el proceso manual
+                        if (decimal1 > 9 && decimal2 > 9) {
+                            multProcess = [];
+                            const d1Str = decimal1.toString();
+                            const d2Str = decimal2.toString();
+                            
+                            multProcess.push(`Multiplicación manual de ${decimal1} × ${decimal2}:`);
+                            multProcess.push(`<pre>  ${d1Str}`);
+                            multProcess.push(`× ${d2Str}`);
+                            multProcess.push(`  ${'─'.repeat(Math.max(d1Str.length, d2Str.length) + 2)}`);
+                            
+                            // Productos parciales
+                            const partialProducts = [];
+                            let totalSum = 0;
+                            
+                            for (let i = d2Str.length - 1; i >= 0; i--) {
+                                const digit = parseInt(d2Str[i]);
+                                const partialProduct = digit * decimal1;
+                                const padding = '0'.repeat(d2Str.length - 1 - i);
+                                const paddedProduct = partialProduct.toString() + padding;
+                                
+                                multProcess.push(`  ${paddedProduct.padStart(Math.max(d1Str.length, d2Str.length) + 2)}`);
+                                totalSum += parseInt(paddedProduct);
+                            }
+                            
+                            multProcess.push(`  ${'─'.repeat(Math.max(d1Str.length, d2Str.length) + 2)}`);
+                            multProcess.push(`  ${resultDecimal}</pre>`);
+                        }
+                        
+                        detailedOperation = `<div style="margin-left: 20px;">
+                            <strong>Multiplicación en decimal:</strong>
+                            <div style="margin-left: 20px;">
+                                ${multProcess.join('<br>')}
+                            </div>
+                        </div>`;
+                        break;
+                    case '/':
+                        if (decimal2 === 0) {
+                            showAlert("Error: División por cero", "error");
+                            return;
+                        }
+                        // Realizar la división y limitar a tres dígitos después del punto decimal
+                        const fullResult = decimal1 / decimal2;
+                        resultDecimal = parseFloat(fullResult.toFixed(3));
+                        operationSymbol = '÷';
+                        
+                        // Mostrar proceso detallado de división
+                        let divProcess = [];
+                        
+                        // Si es una división con residuo o decimal, mostrar el proceso completo
+                        if (decimal1 % decimal2 !== 0) {
+                            const integerPart = Math.floor(resultDecimal);
+                            const decimalPart = resultDecimal - integerPart;
+                            
+                            // División de números enteros con residuo
+                            const quotient = Math.floor(decimal1 / decimal2);
+                            const remainder = decimal1 % decimal2;
+                            
+                            divProcess.push(`División con residuo: ${decimal1} ÷ ${decimal2}`);
+                            divProcess.push(`Cociente entero: ${quotient} con residuo ${remainder}`);
+                            
+                            // Si hay parte decimal, mostrar el proceso para obtenerla
+                            if (decimalPart > 0) {
+                                divProcess.push(`<br>Cálculo de la parte decimal:`);
+                                
+                                let currentRemainder = remainder;
+                                let decimalDigits = '';
+                                
+                                for (let i = 0; i < 3 && currentRemainder > 0; i++) {
+                                    currentRemainder *= 10;
+                                    const digit = Math.floor(currentRemainder / decimal2);
+                                    decimalDigits += digit;
+                                    
+                                    divProcess.push(`Paso ${i+1}: ${currentRemainder} ÷ ${decimal2} = ${digit} con residuo ${currentRemainder % decimal2}`);
+                                    currentRemainder %= decimal2;
+                                }
+                                
+                                divProcess.push(`<br>Resultado final: ${quotient}.${decimalDigits} (redondeado a 3 decimales)`);
+                            }
+                        } else {
+                            divProcess.push(`División exacta: ${decimal1} ÷ ${decimal2} = ${resultDecimal}`);
+                        }
+                        
+                        detailedOperation = `<div style="margin-left: 20px;">
+                            <strong>División en decimal:</strong>
+                            <div style="margin-left: 20px;">
+                                ${divProcess.join('<br>')}
+                            </div>
+                        </div>`;
+                        break;
+                }
+                
+                steps.push(detailedOperation);
+                
+                // Paso 3: Convertir el resultado a la base deseada
+                steps.push(`<strong>PASO 3: Convertir el resultado a base ${resultBase}</strong>`);
+                
+                let finalResult;
+                if (resultBase === 10) {
+                    finalResult = resultDecimal.toString();
+                    steps.push(`<div style="margin-left: 20px;">Ya está en base 10, no se requiere conversión adicional</div>`);
+                } else {
+                    // Si es el resultado de una división y tiene parte decimal
+                    if (operation === '/' && !Number.isInteger(resultDecimal)) {
+                        // Separar la parte entera y la parte decimal
+                        const integerPart = Math.floor(resultDecimal);
+                        let decimalPart = resultDecimal - integerPart;
+                        
+                        // Convertir la parte entera
+                        const integerResult = fromDecimal(integerPart, resultBase);
+                        
+                        steps.push(`<div style="margin-left: 20px;">
+                            <strong>Convertir la parte entera (${integerPart}) a base ${resultBase}:</strong>
+                            <div style="margin-left: 20px;">${integerResult.steps.join('<br>')}</div>
+                        </div>`);
+                        
+                        // Calcular hasta 3 dígitos de la parte decimal en la base destino
+                        let decimalDigits = "";
+                        steps.push(`<div style="margin-left: 20px;">
+                            <strong>Calculando hasta 3 dígitos después del punto decimal:</strong>
+                            <div style="margin-left: 20px;">`);
+                        
+                        for (let i = 0; i < 3 && decimalPart > 0; i++) {
+                            decimalPart *= resultBase;
+                            const digit = Math.floor(decimalPart);
+                            
+                            let digitChar;
+                            if (resultBase === 37) {
+                                digitChar = BASE37_REVERSE[digit];
+                            } else {
+                                digitChar = DIGITS[digit];
+                            }
+                            
+                            steps.push(`Decimal ${decimalPart.toFixed(6)}: Dígito ${i+1} = ${digit} (${digitChar})`);
+                            decimalDigits += digitChar;
+                            decimalPart -= digit;
+                        }
+                        
+                        steps.push(`</div></div>`);
+                        
+                        finalResult = integerResult.result + "." + decimalDigits;
+                        steps.push(`<div style="margin-left: 20px;"><strong>Resultado final en base ${resultBase}:</strong> ${finalResult}</div>`);
+                    } else {
+                        // Para números enteros o resultados de otras operaciones
+                        const result = fromDecimal(resultDecimal, resultBase);
+                        finalResult = result.result;
+                        
+                        steps.push(`<div style="margin-left: 20px;">
+                            <strong>Convertir ${resultDecimal} a base ${resultBase}:</strong>
+                            <div style="margin-left: 20px;">${result.steps.join('<br>')}</div>
+                        </div>`);
+                    }
+                }
+                
+                // Mostrar el resultado
+                document.getElementById('arithmeticResultText').textContent = finalResult;
+                document.getElementById('arithmeticResultContainer').style.display = 'block';
+                
+                // Mostrar los pasos detallados
+                const stepsContainer = document.getElementById('arithmeticSteps');
+                const stepsContent = document.getElementById('arithmeticStepsContent');
+                
+                if (showSteps) {
+                    stepsContent.innerHTML = steps.join('');
+                    stepsContainer.style.display = 'block';
+                } else {
+                    stepsContainer.style.display = 'none';
+                }
+                
+                showAlert(`Operación completada: ${num1} (base ${base1}) ${operationSymbol} ${num2} (base ${base2}) = ${finalResult} (base ${resultBase})`, "success");
+                
+            } catch (error) {
+                showAlert("Error: " + error.message, "error");
+            }
+        }
+        
+        // Vincular botones
+        document.getElementById('convertBtn').addEventListener('click', convertBase);
+        document.getElementById('calculateBtn').addEventListener('click', performArithmeticOperation);
+        
+        // También permitir Enter en los campos de texto
+        document.getElementById('inputText').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                convertBase();
+            }
+        });
+        
+        document.getElementById('number2').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                performArithmeticOperation();
+            }
+        });
+    </script>
+</body>
+</html>
